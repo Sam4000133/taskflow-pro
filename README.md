@@ -1,5 +1,14 @@
 # TaskFlow Pro
 
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript)
+![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs)
+![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?logo=tailwindcss)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
+
 Full-stack task management system with modern architecture.
 
 ## Tech Stack
