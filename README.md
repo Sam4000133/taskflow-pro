@@ -4,8 +4,9 @@ Full-stack task management system with modern architecture.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15 (App Router), TypeScript, shadcn/ui, TailwindCSS, Recharts
-- **Backend**: Nest.js 10, TypeScript, Prisma ORM, PostgreSQL
+- **Frontend**: Next.js 16, React 19.2, TypeScript, shadcn/ui, TailwindCSS, Recharts
+- **Bundler**: Turbopack (stable, default in Next.js 16)
+- **Backend**: Nest.js 10, TypeScript, Prisma ORM 6, PostgreSQL
 - **Auth**: JWT-based authentication with bcrypt password hashing
 - **Deployment**: Vercel (frontend), Render.io (backend + PostgreSQL)
 
