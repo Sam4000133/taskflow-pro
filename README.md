@@ -93,12 +93,51 @@ taskflow-pro/
 
 ## Available Services
 
-| Service   | URL                    | Description          |
-|-----------|------------------------|----------------------|
-| Frontend  | http://localhost:3000  | Next.js application  |
-| Backend   | http://localhost:3001  | Nest.js API server   |
-| pgAdmin   | http://localhost:5050  | Database admin UI    |
-| Prisma    | http://localhost:5555  | Prisma Studio        |
+| Service    | URL                    | Description          |
+|------------|------------------------|----------------------|
+| Frontend   | http://localhost:3000  | Next.js application  |
+| Backend    | http://localhost:3001  | Nest.js API server   |
+| PostgreSQL | localhost:5436         | Database server      |
+| pgAdmin    | http://localhost:5056  | Database admin UI    |
+| Prisma     | http://localhost:5555  | Prisma Studio        |
+
+## Database Connection
+
+### pgAdmin (Web UI)
+
+1. Open http://localhost:5056
+2. Login: `admin@admin.com` / `admin`
+3. Add new server:
+   - **Host**: `postgres` (container name) or `host.docker.internal`
+   - **Port**: `5432` (internal container port)
+   - **Database**: `taskflow_db`
+   - **Username**: `taskflow_user`
+   - **Password**: `taskflow_pass`
+
+### Beekeeper Studio / DBeaver / TablePlus
+
+Connect from your host machine using these settings:
+
+| Parameter | Value |
+|-----------|-------|
+| Host      | `localhost` |
+| Port      | `5436` |
+| Database  | `taskflow_db` |
+| Username  | `taskflow_user` |
+| Password  | `taskflow_pass` |
+| SSL       | Disabled |
+
+**Connection string:**
+```
+postgresql://taskflow_user:taskflow_pass@localhost:5436/taskflow_db
+```
+
+### Prisma Studio
+
+```bash
+cd backend
+npx prisma studio    # Opens http://localhost:5555
+```
 
 ## Common Commands
 
