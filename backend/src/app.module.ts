@@ -6,6 +6,8 @@ import { PrismaModule } from './prisma';
 import { AuthModule } from './auth';
 import { UsersModule } from './users';
 import { TasksModule } from './tasks/tasks.module';
+import { CategoriesModule } from './categories/categories.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { TasksModule } from './tasks/tasks.module';
     AuthModule,
     UsersModule,
     TasksModule,
+    CategoriesModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
