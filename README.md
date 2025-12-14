@@ -67,7 +67,7 @@ echo "NEXT_PUBLIC_API_URL=http://localhost:3001" > .env.local
 npm run dev
 ```
 
-Frontend runs on http://localhost:3000
+Frontend runs on http://localhost:3002
 
 ## Project Structure
 
@@ -97,7 +97,7 @@ taskflow-pro/
 
 | Service    | URL                    | Description          |
 |------------|------------------------|----------------------|
-| Frontend   | http://localhost:3000  | Next.js application  |
+| Frontend   | http://localhost:3002  | Next.js application  |
 | Backend    | http://localhost:3001  | Nest.js API server   |
 | PostgreSQL | localhost:5436         | Database server      |
 | pgAdmin    | http://localhost:5056  | Database admin UI    |
