@@ -3,8 +3,8 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript)
-![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs)
-![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)
+![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?logo=tailwindcss)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
@@ -15,7 +15,7 @@ Full-stack task management system with modern architecture.
 
 - **Frontend**: Next.js 16, React 19.2, TypeScript, shadcn/ui, TailwindCSS, Recharts
 - **Bundler**: Turbopack (stable, default in Next.js 16)
-- **Backend**: Nest.js 10, TypeScript, Prisma ORM 6, PostgreSQL
+- **Backend**: Nest.js 11, TypeScript, Prisma ORM 7, PostgreSQL
 - **Auth**: JWT-based authentication with bcrypt password hashing
 - **Deployment**: Vercel (frontend), Render.io (backend + PostgreSQL)
 
@@ -82,8 +82,9 @@ taskflow-pro/
 │   │   ├── categories/   # Task categories
 │   │   ├── comments/     # Task comments
 │   │   └── prisma/       # Prisma service
-│   └── prisma/
-│       └── schema.prisma # Database schema
+│   ├── prisma/
+│   │   └── schema.prisma # Database schema
+│   └── prisma.config.ts  # Prisma 7 configuration
 └── frontend/             # Next.js web application
     ├── app/              # App Router pages
     ├── components/       # React components
