@@ -13,8 +13,14 @@ services:
       - "5436:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - taskflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskflow_user -d taskflow_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4:9
@@ -26,7 +32,8 @@ services:
     ports:
       - "5056:80"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - taskflow-network
 
