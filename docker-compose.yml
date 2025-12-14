@@ -1,6 +1,5 @@
-version: '3.8'
-
 services:
+  # PostgreSQL Database
   postgres:
     image: postgres:17-alpine
     container_name: taskflow-postgres
@@ -22,6 +21,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # pgAdmin Database Management
   pgadmin:
     image: dpage/pgadmin4:9
     container_name: taskflow-pgadmin
@@ -34,6 +34,56 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - taskflow-network
+
+  # Nest.js Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: taskflow-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://taskflow_user:taskflow_pass@postgres:5432/taskflow_db
+      JWT_SECRET: your-super-secret-jwt-key-min-32-characters-change-in-production
+      JWT_EXPIRES_IN: 7d
+      PORT: 3001
+      NODE_ENV: development
+      FRONTEND_URL: http://localhost:3002
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start:dev"
+
+  # Next.js Frontend Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: taskflow-frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_TELEMETRY_DISABLED: 1
+      PORT: 3002
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
     networks:
       - taskflow-network
 
