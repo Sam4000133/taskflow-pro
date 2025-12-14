@@ -43,8 +43,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **TaskFlow Pro** - Full-stack task management system with modern architecture.
 
 ### Tech Stack
-- **Frontend**: Next.js 15 (App Router), TypeScript, shadcn/ui, TailwindCSS, Recharts
-- **Backend**: Nest.js 10, TypeScript, Prisma ORM, PostgreSQL
+- **Frontend**: Next.js 16 (latest stable), React 19.2, TypeScript, shadcn/ui, TailwindCSS, Recharts
+- **Turbopack**: Stable bundler (default in Next.js 16) - 5-10x faster Fast Refresh
+- **Backend**: Nest.js 10, TypeScript, Prisma ORM 6, PostgreSQL
 - **Auth**: JWT-based authentication with bcrypt password hashing
 - **Deployment**: Vercel (frontend), Render.io (backend + PostgreSQL)
 
@@ -89,6 +90,38 @@ taskflow-pro/
 
 ---
 
+## Initial Setup
+
+### Frontend Setup (Next.js 16)
+```bash
+cd frontend
+
+# Create Next.js app with Turbopack (stable, default bundler)
+npx create-next-app@latest . --typescript --tailwind --app --turbo --no-src-dir
+# Prompts: Yes to ESLint, Yes to Turbopack, No to src/ directory, Yes to App Router
+
+# Initialize shadcn/ui
+npx shadcn@latest init
+# Choose: New York style, Slate color, CSS variables
+
+# Install additional dependencies
+npm install recharts date-fns zustand zod react-hook-form @hookform/resolvers
+
+# Install required shadcn components
+npx shadcn@latest add button card form input label select table toast
+npx shadcn@latest add dialog dropdown-menu badge avatar calendar
+npx shadcn@latest add popover textarea
+
+# Create environment file
+echo "NEXT_PUBLIC_API_URL=http://localhost:3001" > .env.local
+
+# Start dev server
+npm run dev
+# Running on http://localhost:3000 with Turbopack
+```
+
+---
+
 ## Build & Development Commands
 
 ### Backend (Nest.js)
@@ -121,13 +154,15 @@ npm run build        # Build for production
 npm run start:prod   # Start production server
 ```
 
-### Frontend (Next.js)
+### Frontend (Next.js 16)
 
 **Daily Development:**
 ```bash
 cd frontend
-npm run dev          # Dev server on http://localhost:3000
+npm run dev          # Dev server on http://localhost:3000 (Turbopack enabled by default)
 ```
+
+> **Note**: Turbopack is now stable and the default bundler in Next.js 16. Provides 5-10x faster Fast Refresh compared to Webpack.
 
 **Adding Components:**
 ```bash
@@ -174,7 +209,7 @@ docker-compose ps              # List running containers
 - **DTOs (Data Transfer Objects)**: Validate requests with `class-validator`
 - **Guards**: `JwtAuthGuard` protects all routes except auth endpoints
 - **Services**: Business logic separated from controllers
-- **Prisma ORM**: Type-safe database queries with auto-generated client
+- **Prisma ORM 6**: Type-safe database queries with auto-generated client
 
 **Authentication Flow:**
 1. POST `/auth/register` or `/auth/login` with credentials
