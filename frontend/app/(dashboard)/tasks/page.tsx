@@ -89,10 +89,10 @@ export default function TasksPage() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory && matchesAssignee;
   });
 
-  const handleCreateTask = async (data: CreateTaskDto) => {
+  const handleCreateTask = async (data: CreateTaskDto | UpdateTaskDto) => {
     setIsSubmitting(true);
     try {
-      const newTask = await api.createTask(data);
+      const newTask = await api.createTask(data as CreateTaskDto);
       setTasks((prev) => [newTask, ...prev]);
       setIsFormOpen(false);
       toast.success('Task created successfully');
@@ -104,7 +104,7 @@ export default function TasksPage() {
     }
   };
 
-  const handleUpdateTask = async (data: UpdateTaskDto) => {
+  const handleUpdateTask = async (data: CreateTaskDto | UpdateTaskDto) => {
     if (!editingTask) return;
 
     setIsSubmitting(true);
