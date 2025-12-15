@@ -11,6 +11,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from './notifications';
+import { SchedulerModule } from './scheduler';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { NotificationsModule } from './notifications';
     CategoriesModule,
     CommentsModule,
     NotificationsModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
