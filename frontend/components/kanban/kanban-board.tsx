@@ -15,7 +15,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import { KanbanColumn } from './kanban-column';
 import { KanbanCard } from './kanban-card';
-import type { Task } from '@/lib/types';
+import type { Task, TaskStatus } from '@/lib/types';
 
 interface KanbanBoardProps {
   tasks: Task[];
@@ -77,7 +77,7 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskClick }: KanbanBoardProps
       // Moving to a different column
       setLocalTasks((prev) =>
         prev.map((task) =>
-          task.id === activeId ? { ...task, status: overId } : task
+          task.id === activeId ? { ...task, status: overId as TaskStatus } : task
         )
       );
     }
