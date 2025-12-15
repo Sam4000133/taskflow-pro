@@ -15,7 +15,13 @@ A full-stack task management system with modern architecture, featuring real-tim
 
 - **User Authentication**: JWT-based auth with secure password hashing
 - **Task Management**: Full CRUD operations with status tracking (TODO, IN_PROGRESS, DONE)
+- **Kanban Board**: Drag & drop interface for visual task management
 - **Dashboard Analytics**: Real-time statistics with charts (Recharts)
+- **Global Search**: Command palette (Cmd/Ctrl+K) for quick navigation
+- **Dark Mode**: System-aware theme toggle with manual override
+- **Export**: Download tasks as CSV or PDF
+- **Real-time Notifications**: WebSocket-powered live updates
+- **Avatar Upload**: Custom profile picture support
 - **Categories**: Organize tasks with color-coded categories
 - **Comments**: Collaborative task discussion
 - **Responsive Design**: Desktop-first with mobile support
@@ -352,12 +358,15 @@ Response:
 
 ## Demo Credentials
 
-After seeding the database:
+After seeding the database, you can login with any of these accounts:
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@taskflow.com | password123 |
-| User | user@taskflow.com | password123 |
+| Name | Email | Password | Role |
+|------|-------|----------|------|
+| Sarah Mitchell | admin@taskflow.com | password123 | Admin |
+| Alex Thompson | dev@test.com | password123 | User |
+| Emma Rodriguez | designer@taskflow.com | password123 | User |
+| Michael Chen | pm@taskflow.com | password123 | Admin |
+| David Kim | qa@taskflow.com | password123 | User |
 
 ## Common Commands
 
