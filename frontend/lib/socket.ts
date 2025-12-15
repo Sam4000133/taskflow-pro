@@ -26,7 +26,7 @@ export function connectSocket(token: string): Socket {
 
   socket = io(`${apiUrl}/notifications`, {
     auth: { token },
-    transports: ['websocket', 'polling'],
+    transports: ['polling'],
     reconnection: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
