@@ -31,7 +31,7 @@ export function KanbanColumn({
   return (
     <Card
       className={cn(
-        'flex h-full min-h-[500px] w-80 flex-shrink-0 flex-col transition-colors',
+        'flex h-full min-h-[500px] min-w-72 flex-1 flex-col transition-colors',
         isOver && 'ring-2 ring-primary ring-offset-2'
       )}
     >
