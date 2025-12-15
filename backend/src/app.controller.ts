@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { AppService, HealthCheckResult } from './app.service';
 import { Public } from './auth';
 
 @Controller()
@@ -14,7 +14,7 @@ export class AppController {
 
   @Public()
   @Get('health')
-  getHealth() {
+  getHealth(): Promise<HealthCheckResult> {
     return this.appService.getHealth();
   }
 }

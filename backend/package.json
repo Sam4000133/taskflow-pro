@@ -1,8 +1,8 @@
 {
-  "name": "backend",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "taskflow-pro-backend",
+  "version": "1.0.0",
+  "description": "TaskFlow Pro - Full-stack task management system API",
+  "author": "Samuele Quaranta",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '@/store/auth';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -15,16 +15,17 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import type { ApiError } from '@/lib/types';
+import { CategoryManager } from '@/components/categories';
+import { toast } from 'sonner';
+import { User, Palette, Shield } from 'lucide-react';
+import type { Category, CreateCategoryDto, UpdateCategoryDto, ApiError } from '@/lib/types';
 
 export default function SettingsPage() {
   const { user, setAuth, token } = useAuthStore();
   const [name, setName] = useState(user?.name || '');
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{
-    type: 'success' | 'error';
-    text: string;
-  } | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
 
   const initials = user?.name
     ? user.name
@@ -32,28 +33,80 @@ export default function SettingsPage() {
         .map((n) => n[0])
         .join('')
         .toUpperCase()
+        .slice(0, 2)
     : 'U';
 
+  const fetchCategories = useCallback(async () => {
+    try {
+      const data = await api.getCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    } finally {
+      setIsCategoriesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
   const handleUpdateProfile = async () => {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
 
-    setIsLoading(true);
-    setMessage(null);
-
+    setIsUpdating(true);
     try {
       const updated = await api.updateMe({ name });
       if (token) {
         setAuth(updated, token);
       }
-      setMessage({ type: 'success', text: 'Profile updated successfully' });
+      toast.success('Profile updated successfully');
     } catch (err) {
       const apiError = err as ApiError;
-      setMessage({
-        type: 'error',
-        text: apiError.message || 'Failed to update profile',
-      });
+      toast.error(apiError.message || 'Failed to update profile');
     } finally {
-      setIsLoading(false);
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCreateCategory = async (data: CreateCategoryDto) => {
+    try {
+      const newCategory = await api.createCategory(data);
+      setCategories((prev) => [...prev, newCategory]);
+      toast.success('Category created');
+    } catch (err) {
+      const apiError = err as ApiError;
+      toast.error(apiError.message || 'Failed to create category');
+      throw err;
+    }
+  };
+
+  const handleUpdateCategory = async (id: string, data: UpdateCategoryDto) => {
+    try {
+      const updatedCategory = await api.updateCategory(id, data);
+      setCategories((prev) =>
+        prev.map((cat) => (cat.id === id ? updatedCategory : cat))
+      );
+      toast.success('Category updated');
+    } catch (err) {
+      const apiError = err as ApiError;
+      toast.error(apiError.message || 'Failed to update category');
+      throw err;
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      await api.deleteCategory(id);
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+      toast.success('Category deleted');
+    } catch (err) {
+      const apiError = err as ApiError;
+      toast.error(apiError.message || 'Failed to delete category');
+      throw err;
     }
   };
 
@@ -66,19 +119,23 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Profile Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Profile</CardTitle>
-            <CardDescription>
-              Update your profile information
-            </CardDescription>
+            <div className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              <CardTitle>Profile</CardTitle>
+            </div>
+            <CardDescription>Update your personal information</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20">
                 <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
-                <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+                <AvatarFallback className="bg-primary text-2xl text-primary-foreground">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-medium">{user?.name}</p>
@@ -89,73 +146,97 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {message && (
-              <div
-                className={`rounded-md p-3 text-sm ${
-                  message.type === 'success'
-                    ? 'bg-green-50 text-green-600'
-                    : 'bg-red-50 text-red-600'
-                }`}
-              >
-                {message.text}
+            <div className="h-px bg-border" />
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Display Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                />
               </div>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  value={user?.email || ''}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Email cannot be changed
+                </p>
+              </div>
+
+              <Button
+                onClick={handleUpdateProfile}
+                disabled={isUpdating || name === user?.name}
+              >
+                {isUpdating ? 'Saving...' : 'Save Changes'}
+              </Button>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                value={user?.email || ''}
-                disabled
-                className="bg-muted"
-              />
-              <p className="text-xs text-muted-foreground">
-                Email cannot be changed
-              </p>
-            </div>
-
-            <Button onClick={handleUpdateProfile} disabled={isLoading}>
-              {isLoading ? 'Saving...' : 'Save Changes'}
-            </Button>
           </CardContent>
         </Card>
 
+        {/* Account Info Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Account Information</CardTitle>
-            <CardDescription>
-              View your account details
-            </CardDescription>
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              <CardTitle>Account Information</CardTitle>
+            </div>
+            <CardDescription>View your account details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-between py-2 border-b">
+            <div className="flex justify-between border-b py-3">
               <span className="text-muted-foreground">Account ID</span>
-              <span className="font-mono text-sm">{user?.id}</span>
+              <span className="font-mono text-sm">{user?.id?.slice(0, 8)}...</span>
             </div>
-            <div className="flex justify-between py-2 border-b">
+            <div className="flex justify-between border-b py-3">
               <span className="text-muted-foreground">Role</span>
-              <Badge>{user?.role}</Badge>
+              <Badge variant={user?.role === 'ADMIN' ? 'default' : 'secondary'}>
+                {user?.role}
+              </Badge>
             </div>
-            <div className="flex justify-between py-2 border-b">
+            <div className="flex justify-between border-b py-3">
               <span className="text-muted-foreground">Member Since</span>
               <span>
                 {user?.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString()
+                  ? new Date(user.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })
                   : '-'}
               </span>
             </div>
+            <div className="flex justify-between py-3">
+              <span className="text-muted-foreground">Status</span>
+              <Badge className="bg-green-100 text-green-800">Active</Badge>
+            </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Categories Section */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <Palette className="h-5 w-5" />
+          <h3 className="text-lg font-semibold">Task Categories</h3>
+        </div>
+        <div className="max-w-2xl">
+          <CategoryManager
+            categories={categories}
+            isLoading={isCategoriesLoading}
+            onCreate={handleCreateCategory}
+            onUpdate={handleUpdateCategory}
+            onDelete={handleDeleteCategory}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/store/auth';
+import { getApiUrl } from './env';
 import type {
   AuthResponse,
   LoginCredentials,
@@ -16,7 +17,7 @@ import type {
   ApiError,
 } from './types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = getApiUrl();
 
 class ApiClient {
   private baseUrl: string;
