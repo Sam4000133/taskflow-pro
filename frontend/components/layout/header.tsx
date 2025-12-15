@@ -11,10 +11,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Settings, User, Bell } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { LogOut, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 import { MobileSidebar } from './sidebar';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { NotificationDropdown } from '@/components/notifications';
+import { GlobalSearch } from '@/components/search';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+function getAvatarUrl(avatarPath: string | null | undefined): string | undefined {
+  if (!avatarPath) return undefined;
+  if (avatarPath.startsWith('http')) return avatarPath;
+  return `${API_URL}${avatarPath}`;
+}
 
 export function Header() {
   const { user, logout } = useAuthStore();
@@ -29,25 +39,25 @@ export function Header() {
     : 'U';
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:px-6">
+    <header className="flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
       <div className="flex items-center gap-4">
         <MobileSidebar />
         <h1 className="hidden text-lg font-semibold sm:block">TaskFlow Pro</h1>
       </div>
 
+      <div className="hidden flex-1 justify-center px-4 md:flex">
+        <GlobalSearch />
+      </div>
+
       <div className="flex items-center gap-2 md:gap-4">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-            3
-          </span>
-        </Button>
+        <ThemeToggle />
+        <NotificationDropdown />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 md:gap-3">
               <Avatar className="h-9 w-9">
-                <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
+                <AvatarImage src={getAvatarUrl(user?.avatar)} alt={user?.name} />
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {initials}
                 </AvatarFallback>

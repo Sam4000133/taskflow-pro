@@ -10,18 +10,24 @@ import {
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CurrentUser } from '../auth';
+import { NotificationsGateway } from '../notifications';
 
 @Controller()
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) {}
+  constructor(
+    private readonly commentsService: CommentsService,
+    private readonly notificationsGateway: NotificationsGateway,
+  ) {}
 
   @Post('tasks/:taskId/comments')
-  create(
+  async create(
     @Param('taskId', ParseUUIDPipe) taskId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { id: string; name: string },
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    return this.commentsService.create(taskId, user.id, createCommentDto);
+    const { comment, task } = await this.commentsService.create(taskId, user.id, createCommentDto);
+    this.notificationsGateway.emitCommentAdded(task, comment, user.name);
+    return comment;
   }
 
   @Get('tasks/:taskId/comments')

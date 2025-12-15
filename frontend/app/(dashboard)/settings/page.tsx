@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { CategoryManager } from '@/components/categories';
+import { AvatarUpload } from '@/components/settings';
 import { toast } from 'sonner';
 import { User, Palette, Shield } from 'lucide-react';
 import type { Category, CreateCategoryDto, UpdateCategoryDto, ApiError } from '@/lib/types';
@@ -130,17 +131,12 @@ export default function SettingsPage() {
             <CardDescription>Update your personal information</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={user?.avatar || undefined} alt={user?.name} />
-                <AvatarFallback className="bg-primary text-2xl text-primary-foreground">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium">{user?.name}</p>
+            <div className="flex items-start gap-6">
+              <AvatarUpload />
+              <div className="flex-1 pt-4">
+                <p className="font-medium text-lg">{user?.name}</p>
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
-                <Badge variant="secondary" className="mt-1">
+                <Badge variant="secondary" className="mt-2">
                   {user?.role}
                 </Badge>
               </div>

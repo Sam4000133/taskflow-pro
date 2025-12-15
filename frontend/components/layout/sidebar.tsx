@@ -11,7 +11,7 @@ import {
   Settings,
   LogOut,
   Menu,
-  X,
+  Kanban,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Board', href: '/board', icon: Kanban },
   { name: 'Categories', href: '/categories', icon: FolderOpen },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
@@ -82,7 +83,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
 export function Sidebar() {
   return (
-    <aside className="hidden h-screen w-64 flex-col border-r bg-white md:flex">
+    <aside className="hidden h-screen w-64 flex-col border-r bg-background md:flex">
       <SidebarContent />
     </aside>
   );

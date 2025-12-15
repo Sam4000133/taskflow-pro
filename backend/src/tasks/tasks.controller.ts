@@ -14,17 +14,26 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { FilterTasksDto } from './dto/filter-tasks.dto';
 import { CurrentUser } from '../auth';
+import { NotificationsGateway } from '../notifications';
 
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(
+    private readonly tasksService: TasksService,
+    private readonly notificationsGateway: NotificationsGateway,
+  ) {}
 
   @Post()
-  create(
-    @CurrentUser() user: { id: string },
+  async create(
+    @CurrentUser() user: { id: string; name: string },
     @Body() createTaskDto: CreateTaskDto,
   ) {
-    return this.tasksService.create(user.id, createTaskDto);
+    const task = await this.tasksService.create(user.id, createTaskDto);
+    this.notificationsGateway.emitTaskCreated(task, user.name);
+    if (task.assigneeId && task.assigneeId !== user.id) {
+      this.notificationsGateway.emitTaskAssigned(task, task.assigneeId, user.name);
+    }
+    return task;
   }
 
   @Get()
@@ -43,19 +52,32 @@ export class TasksController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { id: string; name: string },
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
-    return this.tasksService.update(id, user.id, updateTaskDto);
+    const existingTask = await this.tasksService.findOne(id);
+    const task = await this.tasksService.update(id, user.id, updateTaskDto);
+    this.notificationsGateway.emitTaskUpdated(task, user.name);
+
+    // Notify newly assigned user
+    if (updateTaskDto.assigneeId &&
+        updateTaskDto.assigneeId !== existingTask.assigneeId &&
+        updateTaskDto.assigneeId !== user.id) {
+      this.notificationsGateway.emitTaskAssigned(task, updateTaskDto.assigneeId, user.name);
+    }
+    return task;
   }
 
   @Delete(':id')
-  remove(
+  async remove(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: { id: string; name: string },
   ) {
-    return this.tasksService.remove(id, user.id);
+    const task = await this.tasksService.findOne(id);
+    const result = await this.tasksService.remove(id, user.id);
+    this.notificationsGateway.emitTaskDeleted(task.title, user.name);
+    return result;
   }
 }

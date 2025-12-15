@@ -19,7 +19,7 @@ export class CommentsService {
       throw new NotFoundException(`Task with ID ${taskId} not found`);
     }
 
-    return this.prisma.comment.create({
+    const comment = await this.prisma.comment.create({
       data: {
         content: createCommentDto.content,
         taskId,
@@ -31,6 +31,8 @@ export class CommentsService {
         },
       },
     });
+
+    return { comment, task };
   }
 
   async findByTask(taskId: string) {

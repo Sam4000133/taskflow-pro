@@ -210,16 +210,16 @@ export function TaskForm({
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select
-                  value={watchedCategory || ''}
+                  value={watchedCategory || 'none'}
                   onValueChange={(value) =>
-                    setValue('categoryId', value || undefined)
+                    setValue('categoryId', value === 'none' ? undefined : value)
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No category</SelectItem>
+                    <SelectItem value="none">No category</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         <div className="flex items-center gap-2">
@@ -238,16 +238,16 @@ export function TaskForm({
               <div className="space-y-2">
                 <Label>Assignee</Label>
                 <Select
-                  value={watchedAssignee || ''}
+                  value={watchedAssignee || 'none'}
                   onValueChange={(value) =>
-                    setValue('assigneeId', value || undefined)
+                    setValue('assigneeId', value === 'none' ? undefined : value)
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select assignee" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Unassigned</SelectItem>
+                    <SelectItem value="none">Unassigned</SelectItem>
                     {users.map((user) => (
                       <SelectItem key={user.id} value={user.id}>
                         {user.name}

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { TaskList, TaskFilters, TaskForm } from '@/components/tasks';
+import { TaskList, TaskFilters, TaskForm, ExportButton } from '@/components/tasks';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import type {
@@ -155,10 +155,13 @@ export default function TasksPage() {
             Manage and track your tasks ({filteredTasks.length} of {tasks.length})
           </p>
         </div>
-        <Button onClick={() => setIsFormOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Task
-        </Button>
+        <div className="flex gap-2">
+          <ExportButton tasks={filteredTasks} disabled={isLoading} />
+          <Button onClick={() => setIsFormOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Task
+          </Button>
+        </div>
       </div>
 
       <TaskFilters

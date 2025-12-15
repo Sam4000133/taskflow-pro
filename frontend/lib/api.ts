@@ -101,9 +101,36 @@ class ApiClient {
     return this.request<User[]>('/users');
   }
 
+  async uploadAvatar(file: File): Promise<User> {
+    const token = this.getToken();
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await fetch(`${this.baseUrl}/users/me/avatar`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json().catch(() => ({
+        message: 'Failed to upload avatar',
+        statusCode: response.status,
+      }));
+      throw error;
+    }
+
+    return response.json();
+  }
+
   // Task endpoints
-  async getTasks(): Promise<Task[]> {
-    return this.request<Task[]>('/tasks');
+  async getTasks(params?: { search?: string }): Promise<Task[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.search) {
+      searchParams.set('search', params.search);
+    }
+    const queryString = searchParams.toString();
+    return this.request<Task[]>(`/tasks${queryString ? `?${queryString}` : ''}`);
   }
 
   async getTaskStats(): Promise<TaskStats> {
