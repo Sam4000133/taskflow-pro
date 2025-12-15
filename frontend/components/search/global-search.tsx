@@ -102,12 +102,12 @@ export function GlobalSearch() {
     return () => document.removeEventListener('keydown', down);
   }, []);
 
-  const handleSelect = (type: string, id: string) => {
+  const handleSelect = (type: string, id: string, name?: string) => {
     setOpen(false);
     setQuery('');
     switch (type) {
       case 'task':
-        router.push(`/tasks?id=${id}`);
+        router.push(`/tasks?search=${encodeURIComponent(name || '')}`);
         break;
       case 'category':
         router.push(`/tasks?category=${id}`);
@@ -162,7 +162,7 @@ export function GlobalSearch() {
                     <CommandItem
                       key={task.id}
                       value={task.title}
-                      onSelect={() => handleSelect('task', task.id)}
+                      onSelect={() => handleSelect('task', task.id, task.title)}
                       className="flex items-center gap-2"
                     >
                       <FileText className="h-4 w-4 text-muted-foreground" />
