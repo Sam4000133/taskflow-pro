@@ -123,15 +123,15 @@ export default function LoginPage() {
         <CardContent className="space-y-2 text-xs">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <p className="font-medium">Admin</p>
+              <p className="font-medium">Admins</p>
               <p className="text-muted-foreground">admin@taskflow.com</p>
+              <p className="text-muted-foreground">pm@taskflow.com</p>
             </div>
             <div>
               <p className="font-medium">Users</p>
               <p className="text-muted-foreground">dev@test.com</p>
-              <p className="text-muted-foreground">emma@test.com</p>
-              <p className="text-muted-foreground">john@test.com</p>
-              <p className="text-muted-foreground">sarah@test.com</p>
+              <p className="text-muted-foreground">designer@taskflow.com</p>
+              <p className="text-muted-foreground">qa@taskflow.com</p>
             </div>
           </div>
           <p className="pt-2 text-muted-foreground">
