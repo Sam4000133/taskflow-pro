@@ -46,6 +46,9 @@ export interface Task {
   assignee?: User | null;
   category?: Category | null;
   comments?: Comment[];
+  _count?: {
+    comments: number;
+  };
 }
 
 export interface CreateTaskDto {
