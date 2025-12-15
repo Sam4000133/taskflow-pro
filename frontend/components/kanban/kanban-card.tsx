@@ -112,10 +112,10 @@ export function KanbanCard({ task, onClick }: KanbanCardProps) {
                 {format(new Date(task.dueDate), 'MMM d')}
               </div>
             )}
-            {task._count?.comments > 0 && (
+            {(task._count?.comments ?? 0) > 0 && (
               <div className="flex items-center gap-1">
                 <MessageSquare className="h-3 w-3" />
-                {task._count.comments}
+                {task._count?.comments}
               </div>
             )}
           </div>
