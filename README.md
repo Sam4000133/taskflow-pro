@@ -368,6 +368,8 @@ After seeding the database, you can login with any of these accounts:
 | Michael Chen | pm@taskflow.com | password123 | Admin |
 | David Kim | qa@taskflow.com | password123 | User |
 
+> **Note**: This is a demo environment. All data (users, tasks, comments) is automatically reset every 24 hours at midnight UTC. Feel free to test all features - your changes will be restored to the original demo data daily.
+
 ## Common Commands
 
 ### Backend
