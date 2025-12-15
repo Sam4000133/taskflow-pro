@@ -1,11 +1,7 @@
 /**
- * Environment configuration with validation
- * Validates required environment variables at build time
+ * Environment configuration
+ * NEXT_PUBLIC_ variables are replaced at build time by Next.js
  */
-
-const requiredEnvVars = ['NEXT_PUBLIC_API_URL'] as const;
-
-type RequiredEnvVar = (typeof requiredEnvVars)[number];
 
 interface EnvConfig {
   NEXT_PUBLIC_API_URL: string;
@@ -14,31 +10,20 @@ interface EnvConfig {
   IS_DEVELOPMENT: boolean;
 }
 
-function validateEnv(): EnvConfig {
-  const missingVars: string[] = [];
-
-  for (const envVar of requiredEnvVars) {
-    if (!process.env[envVar]) {
-      missingVars.push(envVar);
-    }
-  }
-
-  if (missingVars.length > 0 && process.env.NODE_ENV === 'production') {
-    throw new Error(
-      `Missing required environment variables: ${missingVars.join(', ')}\n` +
-        'Please check your .env.local file or deployment configuration.'
-    );
-  }
+function getEnvConfig(): EnvConfig {
+  // Static access required for Next.js build-time replacement
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const nodeEnv = process.env.NODE_ENV || 'development';
 
   return {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
-    NODE_ENV: process.env.NODE_ENV || 'development',
-    IS_PRODUCTION: process.env.NODE_ENV === 'production',
-    IS_DEVELOPMENT: process.env.NODE_ENV === 'development',
+    NEXT_PUBLIC_API_URL: apiUrl,
+    NODE_ENV: nodeEnv,
+    IS_PRODUCTION: nodeEnv === 'production',
+    IS_DEVELOPMENT: nodeEnv === 'development',
   };
 }
 
-export const env = validateEnv();
+export const env = getEnvConfig();
 
 /**
  * Get the API URL with proper formatting
