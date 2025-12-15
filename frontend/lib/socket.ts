@@ -17,34 +17,41 @@ export function getSocket(): Socket | null {
   return socket;
 }
 
-export function connectSocket(token: string): Socket {
+export function connectSocket(token: string): Socket | null {
   if (socket?.connected) {
     return socket;
   }
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-  socket = io(`${apiUrl}/notifications`, {
-    auth: { token },
-    transports: ['polling'],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-  });
+  // Skip socket connection in production if API is proxied
+  if (apiUrl.includes('/api')) {
+    return null;
+  }
 
-  socket.on('connect', () => {
-    console.log('Socket connected:', socket?.id);
-  });
+  try {
+    socket = io(apiUrl, {
+      auth: { token },
+      transports: ['polling', 'websocket'],
+      reconnection: true,
+      reconnectionAttempts: 2,
+      reconnectionDelay: 3000,
+    });
 
-  socket.on('disconnect', (reason) => {
-    console.log('Socket disconnected:', reason);
-  });
+    socket.on('connect', () => {
+      console.log('Socket connected');
+    });
 
-  socket.on('connect_error', (error) => {
-    console.error('Socket connection error:', error.message);
-  });
+    socket.on('connect_error', () => {
+      // Silent fail - notifications are optional
+      socket?.disconnect();
+      socket = null;
+    });
 
-  return socket;
+    return socket;
+  } catch {
+    return null;
+  }
 }
 
 export function disconnectSocket(): void {
