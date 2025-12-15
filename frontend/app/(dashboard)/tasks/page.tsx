@@ -32,6 +32,9 @@ export default function TasksPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
 
+  // Task to open from URL
+  const [taskIdToOpen, setTaskIdToOpen] = useState<string | null>(null);
+
   // Initialize filters from URL params
   useEffect(() => {
     const assignee = searchParams.get('assignee');
@@ -39,13 +42,27 @@ export default function TasksPage() {
     const priority = searchParams.get('priority');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
+    const taskId = searchParams.get('id');
 
     if (assignee) setAssigneeFilter(assignee);
     if (status) setStatusFilter(status);
     if (priority) setPriorityFilter(priority);
     if (category) setCategoryFilter(category);
     if (search) setSearchQuery(search);
+    if (taskId) setTaskIdToOpen(taskId);
   }, [searchParams]);
+
+  // Open task when data is loaded and taskId is in URL
+  useEffect(() => {
+    if (taskIdToOpen && tasks.length > 0) {
+      const task = tasks.find(t => t.id === taskIdToOpen);
+      if (task) {
+        setEditingTask(task);
+        setIsFormOpen(true);
+        setTaskIdToOpen(null);
+      }
+    }
+  }, [taskIdToOpen, tasks]);
 
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false);
