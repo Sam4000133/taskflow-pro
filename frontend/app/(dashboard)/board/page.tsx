@@ -17,6 +17,7 @@ export default function BoardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -62,6 +63,7 @@ export default function BoardPage() {
   };
 
   const handleCreateTask = async (data: CreateTaskDto) => {
+    setIsSubmitting(true);
     try {
       const newTask = await api.createTask(data);
       setTasks((prev) => [...prev, newTask]);
@@ -71,11 +73,14 @@ export default function BoardPage() {
       const apiError = err as ApiError;
       toast.error(apiError.message || 'Failed to create task');
       throw err;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleUpdateTask = async (data: UpdateTaskDto) => {
     if (!editingTask) return;
+    setIsSubmitting(true);
     try {
       const updatedTask = await api.updateTask(editingTask.id, data);
       setTasks((prev) =>
@@ -88,6 +93,8 @@ export default function BoardPage() {
       const apiError = err as ApiError;
       toast.error(apiError.message || 'Failed to update task');
       throw err;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -143,11 +150,15 @@ export default function BoardPage() {
 
       <TaskForm
         open={isFormOpen}
-        onClose={handleCloseForm}
+        onOpenChange={(open) => {
+          if (!open) handleCloseForm();
+          else setIsFormOpen(open);
+        }}
         onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
         task={editingTask}
         categories={categories}
         users={users}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

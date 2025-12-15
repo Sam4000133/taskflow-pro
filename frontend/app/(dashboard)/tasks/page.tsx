@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { TaskList, TaskFilters, TaskForm, ExportButton } from '@/components/tasks';
@@ -17,16 +18,34 @@ import type {
 } from '@/lib/types';
 
 export default function TasksPage() {
+  const searchParams = useSearchParams();
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Filters
+  // Filters - initialize from URL params
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [assigneeFilter, setAssigneeFilter] = useState('all');
+
+  // Initialize filters from URL params
+  useEffect(() => {
+    const assignee = searchParams.get('assignee');
+    const status = searchParams.get('status');
+    const priority = searchParams.get('priority');
+    const category = searchParams.get('category');
+    const search = searchParams.get('search');
+
+    if (assignee) setAssigneeFilter(assignee);
+    if (status) setStatusFilter(status);
+    if (priority) setPriorityFilter(priority);
+    if (category) setCategoryFilter(category);
+    if (search) setSearchQuery(search);
+  }, [searchParams]);
 
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -64,8 +83,10 @@ export default function TasksPage() {
       priorityFilter === 'all' || task.priority === priorityFilter;
     const matchesCategory =
       categoryFilter === 'all' || task.categoryId === categoryFilter;
+    const matchesAssignee =
+      assigneeFilter === 'all' || task.assigneeId === assigneeFilter;
 
-    return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
+    return matchesSearch && matchesStatus && matchesPriority && matchesCategory && matchesAssignee;
   });
 
   const handleCreateTask = async (data: CreateTaskDto) => {
@@ -144,6 +165,7 @@ export default function TasksPage() {
     setStatusFilter('all');
     setPriorityFilter('all');
     setCategoryFilter('all');
+    setAssigneeFilter('all');
   };
 
   return (
@@ -173,7 +195,10 @@ export default function TasksPage() {
         onPriorityChange={setPriorityFilter}
         categoryFilter={categoryFilter}
         onCategoryChange={setCategoryFilter}
+        assigneeFilter={assigneeFilter}
+        onAssigneeChange={setAssigneeFilter}
         categories={categories}
+        users={users}
         onClearFilters={handleClearFilters}
       />
 

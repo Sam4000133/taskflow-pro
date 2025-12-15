@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, X } from 'lucide-react';
-import type { Category } from '@/lib/types';
+import type { Category, User } from '@/lib/types';
 
 interface TaskFiltersProps {
   searchQuery: string;
@@ -21,7 +21,10 @@ interface TaskFiltersProps {
   onPriorityChange: (value: string) => void;
   categoryFilter: string;
   onCategoryChange: (value: string) => void;
+  assigneeFilter: string;
+  onAssigneeChange: (value: string) => void;
   categories: Category[];
+  users: User[];
   onClearFilters: () => void;
 }
 
@@ -34,14 +37,18 @@ export function TaskFilters({
   onPriorityChange,
   categoryFilter,
   onCategoryChange,
+  assigneeFilter,
+  onAssigneeChange,
   categories,
+  users,
   onClearFilters,
 }: TaskFiltersProps) {
   const hasActiveFilters =
     searchQuery ||
     statusFilter !== 'all' ||
     priorityFilter !== 'all' ||
-    categoryFilter !== 'all';
+    categoryFilter !== 'all' ||
+    assigneeFilter !== 'all';
 
   return (
     <div className="space-y-4">
@@ -95,6 +102,20 @@ export function TaskFilters({
                     />
                     {category.name}
                   </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={assigneeFilter} onValueChange={onAssigneeChange}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Assignee" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Assignees</SelectItem>
+              {users.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.name}
                 </SelectItem>
               ))}
             </SelectContent>
