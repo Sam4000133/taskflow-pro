@@ -26,9 +26,9 @@ export default function CategoriesPage() {
     fetchCategories();
   }, [fetchCategories]);
 
-  const handleCreate = async (data: CreateCategoryDto) => {
+  const handleCreate = async (data: CreateCategoryDto | UpdateCategoryDto) => {
     try {
-      const newCategory = await api.createCategory(data);
+      const newCategory = await api.createCategory(data as CreateCategoryDto);
       setCategories((prev) => [...prev, newCategory]);
       toast.success('Category created successfully');
     } catch (err) {

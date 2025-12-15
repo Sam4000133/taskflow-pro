@@ -37,17 +37,17 @@ export function CategoryManager({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleCreate = async (data: CreateCategoryDto) => {
+  const handleCreate = async (data: CreateCategoryDto | UpdateCategoryDto) => {
     setIsSubmitting(true);
     try {
-      await onCreate(data);
+      await onCreate(data as CreateCategoryDto);
       setIsFormOpen(false);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleUpdate = async (data: UpdateCategoryDto) => {
+  const handleUpdate = async (data: CreateCategoryDto | UpdateCategoryDto) => {
     if (!editingCategory) return;
     setIsSubmitting(true);
     try {

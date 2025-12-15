@@ -73,9 +73,9 @@ export default function SettingsPage() {
     }
   };
 
-  const handleCreateCategory = async (data: CreateCategoryDto) => {
+  const handleCreateCategory = async (data: CreateCategoryDto | UpdateCategoryDto) => {
     try {
-      const newCategory = await api.createCategory(data);
+      const newCategory = await api.createCategory(data as CreateCategoryDto);
       setCategories((prev) => [...prev, newCategory]);
       toast.success('Category created');
     } catch (err) {
