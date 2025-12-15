@@ -59,13 +59,14 @@ export default function LoginPage() {
   };
 
   return (
-    <Card>
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-        <CardDescription>
-          Enter your credentials to access your account
-        </CardDescription>
-      </CardHeader>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+          <CardDescription>
+            Enter your credentials to access your account
+          </CardDescription>
+        </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           {error && (
@@ -111,5 +112,33 @@ export default function LoginPage() {
         </CardFooter>
       </form>
     </Card>
+
+      <Card className="border-dashed bg-muted/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium">Demo Credentials</CardTitle>
+          <CardDescription className="text-xs">
+            Use any of these accounts to explore the app
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 text-xs">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <p className="font-medium">Admin</p>
+              <p className="text-muted-foreground">admin@taskflow.com</p>
+            </div>
+            <div>
+              <p className="font-medium">Users</p>
+              <p className="text-muted-foreground">dev@test.com</p>
+              <p className="text-muted-foreground">emma@test.com</p>
+              <p className="text-muted-foreground">john@test.com</p>
+              <p className="text-muted-foreground">sarah@test.com</p>
+            </div>
+          </div>
+          <p className="pt-2 text-muted-foreground">
+            Password for all accounts: <span className="font-mono font-medium text-foreground">password123</span>
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
