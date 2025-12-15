@@ -62,10 +62,10 @@ export default function BoardPage() {
     setIsFormOpen(true);
   };
 
-  const handleCreateTask = async (data: CreateTaskDto) => {
+  const handleCreateTask = async (data: CreateTaskDto | UpdateTaskDto) => {
     setIsSubmitting(true);
     try {
-      const newTask = await api.createTask(data);
+      const newTask = await api.createTask(data as CreateTaskDto);
       setTasks((prev) => [...prev, newTask]);
       setIsFormOpen(false);
       toast.success('Task created');
@@ -78,7 +78,7 @@ export default function BoardPage() {
     }
   };
 
-  const handleUpdateTask = async (data: UpdateTaskDto) => {
+  const handleUpdateTask = async (data: CreateTaskDto | UpdateTaskDto) => {
     if (!editingTask) return;
     setIsSubmitting(true);
     try {
