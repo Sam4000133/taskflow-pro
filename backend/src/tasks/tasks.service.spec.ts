@@ -2,11 +2,27 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { PrismaService } from '../prisma';
-import { Role, TaskStatus, Priority } from '@prisma/client';
+
+// Define enums locally to avoid Prisma client dependency in tests
+const TaskStatus = {
+  TODO: 'TODO',
+  IN_PROGRESS: 'IN_PROGRESS',
+  DONE: 'DONE',
+} as const;
+
+const Priority = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+} as const;
+
+const Role = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+} as const;
 
 describe('TasksService', () => {
   let tasksService: TasksService;
-  let prismaService: PrismaService;
 
   const mockTask = {
     id: 'task-uuid',
@@ -48,7 +64,6 @@ describe('TasksService', () => {
     }).compile();
 
     tasksService = module.get<TasksService>(TasksService);
-    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => {
@@ -62,8 +77,8 @@ describe('TasksService', () => {
       const result = await tasksService.create('user-uuid', {
         title: 'Test Task',
         description: 'Test Description',
-        status: TaskStatus.TODO,
-        priority: Priority.MEDIUM,
+        status: TaskStatus.TODO as any,
+        priority: Priority.MEDIUM as any,
       });
 
       expect(result).toEqual(mockTask);
@@ -75,7 +90,7 @@ describe('TasksService', () => {
     it('should return tasks for admin user', async () => {
       mockPrismaService.task.findMany.mockResolvedValue([mockTask]);
 
-      const result = await tasksService.findAll({}, 'admin-uuid', Role.ADMIN);
+      const result = await tasksService.findAll({}, 'admin-uuid', Role.ADMIN as any);
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual(mockTask);
@@ -84,7 +99,7 @@ describe('TasksService', () => {
     it('should filter tasks for non-admin user', async () => {
       mockPrismaService.task.findMany.mockResolvedValue([mockTask]);
 
-      const result = await tasksService.findAll({}, 'user-uuid', Role.USER);
+      const result = await tasksService.findAll({}, 'user-uuid', Role.USER as any);
 
       expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -125,7 +140,7 @@ describe('TasksService', () => {
       const result = await tasksService.update(
         'task-uuid',
         'user-uuid',
-        Role.USER,
+        Role.USER as any,
         { title: 'Updated' },
       );
 
@@ -140,7 +155,7 @@ describe('TasksService', () => {
       });
 
       await expect(
-        tasksService.update('task-uuid', 'user-uuid', Role.USER, { title: 'Updated' }),
+        tasksService.update('task-uuid', 'user-uuid', Role.USER as any, { title: 'Updated' }),
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -154,7 +169,7 @@ describe('TasksService', () => {
       const result = await tasksService.update(
         'task-uuid',
         'admin-uuid',
-        Role.ADMIN,
+        Role.ADMIN as any,
         { title: 'Updated' },
       );
 
@@ -167,7 +182,7 @@ describe('TasksService', () => {
       mockPrismaService.task.findUnique.mockResolvedValue(mockTask);
       mockPrismaService.task.delete.mockResolvedValue(mockTask);
 
-      const result = await tasksService.remove('task-uuid', 'user-uuid', Role.USER);
+      const result = await tasksService.remove('task-uuid', 'user-uuid', Role.USER as any);
 
       expect(result).toEqual({ message: 'Task deleted successfully' });
     });
@@ -179,7 +194,7 @@ describe('TasksService', () => {
       });
 
       await expect(
-        tasksService.remove('task-uuid', 'user-uuid', Role.USER),
+        tasksService.remove('task-uuid', 'user-uuid', Role.USER as any),
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -193,7 +208,7 @@ describe('TasksService', () => {
         .mockResolvedValueOnce(2)  // done
         .mockResolvedValueOnce(1); // overdue
 
-      const result = await tasksService.getStats('user-uuid', Role.ADMIN);
+      const result = await tasksService.getStats('user-uuid', Role.ADMIN as any);
 
       expect(result).toEqual({
         total: 10,
