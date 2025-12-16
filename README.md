@@ -14,6 +14,7 @@ A full-stack task management system with modern architecture, featuring real-tim
 ## Features
 
 - **User Authentication**: JWT-based auth with secure password hashing
+- **Role-Based Access Control**: Admin and User roles with different permissions
 - **Task Management**: Full CRUD operations with status tracking (TODO, IN_PROGRESS, DONE)
 - **Kanban Board**: Drag & drop interface for visual task management
 - **Dashboard Analytics**: Real-time statistics with charts (Recharts)
@@ -26,6 +27,24 @@ A full-stack task management system with modern architecture, featuring real-tim
 - **Comments**: Collaborative task discussion
 - **Responsive Design**: Desktop-first with mobile support
 - **Health Monitoring**: Comprehensive health check endpoint
+
+## Role-Based Access Control
+
+TaskFlow Pro implements role-based access control with two user types:
+
+### Admin Users
+- View all tasks in the system
+- Create tasks and assign them to any user
+- Edit and delete any task
+- Access all filters including assignee filter
+- Full dashboard statistics for all tasks
+
+### Regular Users
+- View only tasks they created or are assigned to
+- Create tasks (automatically assigned to themselves)
+- Edit only their own tasks
+- Cannot assign tasks to other users
+- Dashboard statistics only for their tasks
 
 ## Tech Stack
 
