@@ -16,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useAuthStore } from '@/store/auth';
 import type { Task, Category, User as UserType } from '@/lib/types';
 
 interface SearchResults {
@@ -39,6 +40,8 @@ const priorityColors: Record<string, string> = {
 
 export function GlobalSearch() {
   const router = useRouter();
+  const currentUser = useAuthStore((state) => state.user);
+  const isAdmin = currentUser?.role === 'ADMIN';
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -58,21 +61,31 @@ export function GlobalSearch() {
 
     setIsLoading(true);
     try {
-      const [tasks, categories, users] = await Promise.all([
+      // Only fetch users for admin users
+      const requests: [Promise<Task[]>, Promise<Category[]>, Promise<UserType[]>?] = [
         api.getTasks({ search: searchQuery }),
         api.getCategories(),
-        api.getUsers(),
-      ]);
+      ];
 
-      // Filter categories and users by name
+      if (isAdmin) {
+        requests.push(api.getUsers());
+      }
+
+      const [tasks, categories, users = []] = await Promise.all(requests);
+
+      // Filter categories by name
       const searchLower = searchQuery.toLowerCase();
       const filteredCategories = categories.filter((c: Category) =>
         c.name.toLowerCase().includes(searchLower)
       );
-      const filteredUsers = users.filter((u: UserType) =>
-        u.name.toLowerCase().includes(searchLower) ||
-        u.email.toLowerCase().includes(searchLower)
-      );
+
+      // Filter users by name (only for admin)
+      const filteredUsers = isAdmin
+        ? users.filter((u: UserType) =>
+            u.name.toLowerCase().includes(searchLower) ||
+            u.email.toLowerCase().includes(searchLower)
+          )
+        : [];
 
       setResults({
         tasks: tasks.slice(0, 5),
@@ -84,7 +97,7 @@ export function GlobalSearch() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     performSearch(debouncedQuery);
@@ -137,7 +150,7 @@ export function GlobalSearch() {
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput
-          placeholder="Search tasks, categories, users..."
+          placeholder={isAdmin ? "Search tasks, categories, users..." : "Search tasks, categories..."}
           value={query}
           onValueChange={setQuery}
         />
@@ -153,7 +166,11 @@ export function GlobalSearch() {
               )}
 
               {!query && (
-                <CommandEmpty>Type to search tasks, categories, or users...</CommandEmpty>
+                <CommandEmpty>
+                  {isAdmin
+                    ? "Type to search tasks, categories, or users..."
+                    : "Type to search tasks or categories..."}
+                </CommandEmpty>
               )}
 
               {results.tasks.length > 0 && (
@@ -216,7 +233,7 @@ export function GlobalSearch() {
                 </>
               )}
 
-              {results.users.length > 0 && (
+              {isAdmin && results.users.length > 0 && (
                 <>
                   <CommandSeparator />
                   <CommandGroup heading="Users">
