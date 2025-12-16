@@ -9,6 +9,7 @@ import {
   Query,
   ParseUUIDPipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -23,6 +24,8 @@ interface CurrentUserType {
   role: Role;
 }
 
+@ApiTags('Tasks')
+@ApiBearerAuth('JWT-auth')
 @Controller('tasks')
 export class TasksController {
   constructor(
@@ -31,6 +34,9 @@ export class TasksController {
   ) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new task' })
+  @ApiResponse({ status: 201, description: 'Task created successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async create(
     @CurrentUser() user: CurrentUserType,
     @Body() createTaskDto: CreateTaskDto,
@@ -44,6 +50,9 @@ export class TasksController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all tasks with optional filters' })
+  @ApiResponse({ status: 200, description: 'List of tasks' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   findAll(
     @CurrentUser() user: CurrentUserType,
     @Query() filters: FilterTasksDto,
@@ -52,16 +61,28 @@ export class TasksController {
   }
 
   @Get('stats')
+  @ApiOperation({ summary: 'Get task statistics' })
+  @ApiResponse({ status: 200, description: 'Task statistics' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getStats(@CurrentUser() user: CurrentUserType) {
     return this.tasksService.getStats(user.id, user.role);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a task by ID with comments' })
+  @ApiResponse({ status: 200, description: 'Task details' })
+  @ApiResponse({ status: 404, description: 'Task not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.tasksService.findOne(id);
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a task' })
+  @ApiResponse({ status: 200, description: 'Task updated successfully' })
+  @ApiResponse({ status: 404, description: 'Task not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - not your task' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserType,
@@ -81,6 +102,11 @@ export class TasksController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a task' })
+  @ApiResponse({ status: 200, description: 'Task deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Task not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - not your task' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async remove(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserType,

@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { validateRequiredEnvVars } from './config';
 
@@ -32,10 +33,42 @@ async function bootstrap() {
     }),
   );
 
+  // Swagger API Documentation
+  const config = new DocumentBuilder()
+    .setTitle('TaskFlow Pro API')
+    .setDescription('Full-stack task management system API documentation')
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addTag('Auth', 'Authentication endpoints')
+    .addTag('Tasks', 'Task management endpoints')
+    .addTag('Categories', 'Category management endpoints')
+    .addTag('Users', 'User management endpoints')
+    .addTag('Comments', 'Comment management endpoints')
+    .addTag('Health', 'Health check endpoint')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
+
   const port = process.env.PORT || 3001;
   await app.listen(port);
 
   logger.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`Swagger docs available at: http://localhost:${port}/api/docs`);
   logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   logger.log(`CORS enabled for: ${frontendUrl}`);
 }

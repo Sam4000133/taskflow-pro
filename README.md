@@ -9,6 +9,8 @@
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?logo=tailwindcss)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
 ![Mobile](https://img.shields.io/badge/Mobile-Ready-34A853)
+![CI](https://github.com/Sam4000133/taskflow-pro/actions/workflows/ci.yml/badge.svg)
+![Swagger](https://img.shields.io/badge/API-Swagger-85EA2D?logo=swagger)
 
 A full-stack task management system with modern architecture, featuring real-time dashboard analytics, task assignment, commenting system, and category management.
 
@@ -31,6 +33,9 @@ A full-stack task management system with modern architecture, featuring real-tim
 - **Comments**: Collaborative task discussion
 - **Responsive Design**: Desktop-first with mobile support
 - **Health Monitoring**: Comprehensive health check endpoint
+- **API Documentation**: Interactive Swagger/OpenAPI docs at `/api/docs`
+- **CI/CD Pipeline**: Automated testing and builds with GitHub Actions
+- **Unit Tests**: Jest-based test suite for backend services
 
 ## Role-Based Access Control
 
