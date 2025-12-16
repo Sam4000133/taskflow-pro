@@ -29,7 +29,7 @@ describe('AuthService', () => {
   };
 
   const mockJwtService = {
-    signAsync: jest.fn().mockResolvedValue('mock-jwt-token'),
+    sign: jest.fn().mockReturnValue('mock-jwt-token'),
   };
 
   beforeEach(async () => {
