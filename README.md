@@ -18,6 +18,8 @@ A full-stack task management system with modern architecture, featuring real-tim
 - **Session Timeout**: Auto-logout after 5 minutes of inactivity with warning modal
 - **Role-Based Access Control**: Admin and User roles with different permissions
 - **Task Management**: Full CRUD operations with status tracking (TODO, IN_PROGRESS, DONE)
+- **Smart Task Sorting**: Priority-based ordering with overdue tasks first, completed tasks last
+- **Color-Coded Cards**: Visual status indicators (yellow/purple/green) for quick recognition
 - **Kanban Board**: Drag & drop interface for visual task management
 - **Dashboard Analytics**: Real-time statistics with charts (Recharts)
 - **Global Search**: Command palette (Cmd/Ctrl+K) for quick navigation
