@@ -27,9 +27,11 @@ export function SessionTimeoutModal() {
   const warningRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(0);
+  const showModalRef = useRef<boolean>(false);
 
   const handleLogout = useCallback(() => {
     setShowModal(false);
+    showModalRef.current = false;
     logout();
     router.push('/login');
   }, [logout, router]);
@@ -44,6 +46,7 @@ export function SessionTimeoutModal() {
 
     // Hide modal if showing
     setShowModal(false);
+    showModalRef.current = false;
     setCountdown(60);
 
     if (!isAuthenticated) return;
@@ -51,6 +54,7 @@ export function SessionTimeoutModal() {
     // Set warning timer (4 minutes)
     warningRef.current = setTimeout(() => {
       setShowModal(true);
+      showModalRef.current = true;
       setCountdown(60);
 
       // Start countdown
@@ -83,12 +87,12 @@ export function SessionTimeoutModal() {
 
     const handleActivity = () => {
       // Only reset if modal is not showing (to prevent accidental extends)
-      if (!showModal) {
-        const now = Date.now();
-        // Throttle resets to every 30 seconds to avoid excessive timer resets
-        if (now - lastActivityRef.current > 30000) {
-          resetTimers();
-        }
+      if (showModalRef.current) return;
+
+      const now = Date.now();
+      // Throttle resets to every 30 seconds to avoid excessive timer resets
+      if (now - lastActivityRef.current > 30000) {
+        resetTimers();
       }
     };
 
@@ -97,7 +101,6 @@ export function SessionTimeoutModal() {
     });
 
     // Initialize timers
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     resetTimers();
 
     return () => {
@@ -108,12 +111,12 @@ export function SessionTimeoutModal() {
       if (warningRef.current) clearTimeout(warningRef.current);
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
-  }, [isAuthenticated, resetTimers, showModal]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   // Auto logout when countdown reaches 0
   useEffect(() => {
     if (countdown === 0 && showModal) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleLogout();
     }
   }, [countdown, showModal, handleLogout]);
