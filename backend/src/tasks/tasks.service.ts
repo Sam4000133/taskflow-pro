@@ -65,9 +65,19 @@ export class TasksService {
 
     if (filters.search) {
       // Combine search with existing OR conditions
-      const searchCondition = [
-        { title: { contains: filters.search, mode: 'insensitive' } },
-        { description: { contains: filters.search, mode: 'insensitive' } },
+      const searchCondition: Prisma.TaskWhereInput[] = [
+        {
+          title: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+        {
+          description: {
+            contains: filters.search,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
       ];
 
       if (where.OR) {

@@ -37,8 +37,8 @@ interface NotificationPayload {
 interface TaskPayload {
   id: string;
   title: string;
-  creatorId?: string;
-  assigneeId?: string;
+  creatorId?: string | null;
+  assigneeId?: string | null;
 }
 
 interface CommentPayload {
