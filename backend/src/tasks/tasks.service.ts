@@ -106,12 +106,31 @@ export class TasksService {
     // 5. Non-overdue MEDIUM (earliest due date first)
     // 6. Non-overdue LOW (earliest due date first)
     // 7. Tasks without due date (by priority, then by creation date)
+    // 8. DONE tasks always at the bottom (sorted by due date)
     const priorityOrder = { HIGH: 0, MEDIUM: 1, LOW: 2 };
     const now = new Date();
 
     return tasks.sort((a, b) => {
-      const aOverdue = a.dueDate && new Date(a.dueDate) < now && a.status !== 'DONE';
-      const bOverdue = b.dueDate && new Date(b.dueDate) < now && b.status !== 'DONE';
+      const aDone = a.status === 'DONE';
+      const bDone = b.status === 'DONE';
+
+      // DONE tasks always at the bottom
+      if (aDone && !bDone) return 1;
+      if (!aDone && bDone) return -1;
+
+      // Both DONE: sort by due date only (newest first), then by creation date
+      if (aDone && bDone) {
+        if (a.dueDate && b.dueDate) {
+          return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
+        }
+        if (a.dueDate && !b.dueDate) return -1;
+        if (!a.dueDate && b.dueDate) return 1;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+
+      // Neither is DONE - apply priority/overdue sorting
+      const aOverdue = a.dueDate && new Date(a.dueDate) < now;
+      const bOverdue = b.dueDate && new Date(b.dueDate) < now;
       const aHasDueDate = !!a.dueDate;
       const bHasDueDate = !!b.dueDate;
 
