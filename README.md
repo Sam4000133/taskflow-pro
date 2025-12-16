@@ -8,6 +8,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?logo=tailwindcss)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
+![Mobile](https://img.shields.io/badge/Mobile-Ready-34A853)
 
 A full-stack task management system with modern architecture, featuring real-time dashboard analytics, task assignment, commenting system, and category management.
 
