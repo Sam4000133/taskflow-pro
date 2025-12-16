@@ -84,7 +84,7 @@ export class TasksService {
       }
     }
 
-    return this.prisma.task.findMany({
+    const tasks = await this.prisma.task.findMany({
       where,
       include: {
         creator: {
@@ -96,7 +96,25 @@ export class TasksService {
         category: true,
         _count: { select: { comments: true } },
       },
-      orderBy: { createdAt: 'desc' },
+    });
+
+    // Custom sorting: priority (HIGH > MEDIUM > LOW), then by due date (oldest first)
+    const priorityOrder = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+
+    return tasks.sort((a, b) => {
+      // First sort by priority
+      const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      if (priorityDiff !== 0) return priorityDiff;
+
+      // Then sort by due date (oldest/most overdue first, null dates at the end)
+      if (a.dueDate && b.dueDate) {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      }
+      if (a.dueDate && !b.dueDate) return -1;
+      if (!a.dueDate && b.dueDate) return 1;
+
+      // If same priority and no due dates, sort by creation date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }
 
