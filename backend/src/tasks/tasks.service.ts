@@ -119,7 +119,7 @@ export class TasksService {
       if (aOverdue && bOverdue) {
         const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
         if (priorityDiff !== 0) return priorityDiff;
-        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        return new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime();
       }
 
       // Only one is overdue: overdue comes first
@@ -134,7 +134,7 @@ export class TasksService {
       if (aHasDueDate && bHasDueDate) {
         const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
         if (priorityDiff !== 0) return priorityDiff;
-        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        return new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime();
       }
 
       // Both without due date: sort by priority, then by creation date
