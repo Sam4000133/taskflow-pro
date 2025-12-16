@@ -112,9 +112,22 @@ export function TaskItem({ task, onStatusChange, onDelete, onEdit }: TaskItemPro
     }
   };
 
+  const getStatusCardClass = () => {
+    switch (task.status) {
+      case 'TODO':
+        return 'border-l-4 border-l-yellow-400 bg-yellow-50/50';
+      case 'IN_PROGRESS':
+        return 'border-l-4 border-l-purple-400 bg-purple-50/50';
+      case 'DONE':
+        return 'border-l-4 border-l-green-400 bg-green-50/50';
+      default:
+        return '';
+    }
+  };
+
   return (
     <>
-      <Card className="transition-shadow hover:shadow-md">
+      <Card className={`transition-shadow hover:shadow-md ${getStatusCardClass()}`}>
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
