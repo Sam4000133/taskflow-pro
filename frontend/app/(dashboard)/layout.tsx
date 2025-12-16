@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
+import { SessionTimeoutModal } from '@/components/layout/session-timeout-modal';
 
 export default function DashboardLayout({
   children,
@@ -33,12 +34,15 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-muted/40">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-auto bg-background p-6">{children}</main>
+    <>
+      <div className="flex h-screen bg-muted/40">
+        <Sidebar />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-auto bg-background p-6">{children}</main>
+        </div>
       </div>
-    </div>
+      <SessionTimeoutModal />
+    </>
   );
 }
