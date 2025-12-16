@@ -33,7 +33,7 @@ A full-stack task management system with modern architecture, featuring real-tim
 - **Comments**: Collaborative task discussion
 - **Responsive Design**: Desktop-first with mobile support
 - **Health Monitoring**: Comprehensive health check endpoint
-- **API Documentation**: Interactive Swagger/OpenAPI docs at `/api/docs`
+- **API Documentation**: Interactive Swagger/OpenAPI docs at [`/api/api/docs`](https://taskflow.alchemicode.tech/api/api/docs)
 - **CI/CD Pipeline**: Automated testing and builds with GitHub Actions
 - **Unit Tests**: Jest-based test suite for backend services
 
