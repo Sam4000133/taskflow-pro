@@ -5,7 +5,6 @@ import { PrismaService } from './prisma';
 
 describe('AppController', () => {
   let appController: AppController;
-  let appService: AppService;
 
   const mockPrismaService = {
     $queryRaw: jest.fn().mockResolvedValue([{ '?column?': 1 }]),
@@ -24,7 +23,6 @@ describe('AppController', () => {
     }).compile();
 
     appController = app.get<AppController>(AppController);
-    appService = app.get<AppService>(AppService);
   });
 
   describe('getHello', () => {

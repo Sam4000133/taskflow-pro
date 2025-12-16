@@ -1,5 +1,11 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, MinLength, validateSync } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsString,
+  MinLength,
+  validateSync,
+} from 'class-validator';
 
 enum Environment {
   Development = 'development',
@@ -58,7 +64,9 @@ export function validateRequiredEnvVars(): void {
   const missing = required.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {
-    console.error(`Missing required environment variables: ${missing.join(', ')}`);
+    console.error(
+      `Missing required environment variables: ${missing.join(', ')}`,
+    );
     process.exit(1);
   }
 

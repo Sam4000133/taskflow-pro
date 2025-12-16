@@ -61,7 +61,7 @@ export interface CreateTaskDto {
   categoryId?: string;
 }
 
-export interface UpdateTaskDto extends Partial<CreateTaskDto> {}
+export type UpdateTaskDto = Partial<CreateTaskDto>;
 
 export interface TaskStats {
   total: number;
@@ -86,7 +86,7 @@ export interface CreateCategoryDto {
   color: string;
 }
 
-export interface UpdateCategoryDto extends Partial<CreateCategoryDto> {}
+export type UpdateCategoryDto = Partial<CreateCategoryDto>;
 
 // Comment types
 export interface Comment {

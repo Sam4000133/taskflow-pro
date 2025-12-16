@@ -26,7 +26,7 @@ export function SessionTimeoutModal() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
-  const lastActivityRef = useRef<number>(Date.now());
+  const lastActivityRef = useRef<number>(0);
 
   const handleLogout = useCallback(() => {
     setShowModal(false);
@@ -97,6 +97,7 @@ export function SessionTimeoutModal() {
     });
 
     // Initialize timers
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     resetTimers();
 
     return () => {
@@ -112,6 +113,7 @@ export function SessionTimeoutModal() {
   // Auto logout when countdown reaches 0
   useEffect(() => {
     if (countdown === 0 && showModal) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleLogout();
     }
   }, [countdown, showModal, handleLogout]);

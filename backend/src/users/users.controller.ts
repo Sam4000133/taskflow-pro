@@ -10,7 +10,13 @@ import {
   UploadedFile,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
@@ -33,7 +39,10 @@ const imageFileFilter = (
   callback: (error: Error | null, acceptFile: boolean) => void,
 ) => {
   if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
-    return callback(new BadRequestException('Only image files are allowed'), false);
+    return callback(
+      new BadRequestException('Only image files are allowed'),
+      false,
+    );
   }
   callback(null, true);
 };

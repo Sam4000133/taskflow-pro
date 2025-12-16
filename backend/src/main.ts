@@ -72,4 +72,4 @@ async function bootstrap() {
   logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   logger.log(`CORS enabled for: ${frontendUrl}`);
 }
-bootstrap();
+void bootstrap();

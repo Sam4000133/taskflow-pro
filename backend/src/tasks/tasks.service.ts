@@ -7,7 +7,7 @@ import { PrismaService } from '../prisma';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { FilterTasksDto } from './dto/filter-tasks.dto';
-import { TaskStatus, Role } from '@prisma/client';
+import { TaskStatus, Role, Prisma } from '@prisma/client';
 
 @Injectable()
 export class TasksService {
@@ -40,14 +40,11 @@ export class TasksService {
   }
 
   async findAll(filters: FilterTasksDto, userId: string, userRole: Role) {
-    const where: any = {};
+    const where: Prisma.TaskWhereInput = {};
 
     // Non-admin users can only see their own tasks (created or assigned)
     if (userRole !== Role.ADMIN) {
-      where.OR = [
-        { creatorId: userId },
-        { assigneeId: userId },
-      ];
+      where.OR = [{ creatorId: userId }, { assigneeId: userId }];
     }
 
     if (filters.status) {
@@ -74,10 +71,7 @@ export class TasksService {
       ];
 
       if (where.OR) {
-        where.AND = [
-          { OR: where.OR },
-          { OR: searchCondition },
-        ];
+        where.AND = [{ OR: where.OR }, { OR: searchCondition }];
         delete where.OR;
       } else {
         where.OR = searchCondition;
@@ -125,7 +119,9 @@ export class TasksService {
         }
         if (a.dueDate && !b.dueDate) return -1;
         if (!a.dueDate && b.dueDate) return 1;
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       }
 
       // Neither is DONE - apply priority/overdue sorting
@@ -136,7 +132,8 @@ export class TasksService {
 
       // Both overdue: sort by priority, then by most overdue
       if (aOverdue && bOverdue) {
-        const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+        const priorityDiff =
+          priorityOrder[a.priority] - priorityOrder[b.priority];
         if (priorityDiff !== 0) return priorityDiff;
         return new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime();
       }
@@ -151,13 +148,15 @@ export class TasksService {
 
       // Both have due date (not overdue): sort by priority, then earliest due date
       if (aHasDueDate && bHasDueDate) {
-        const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+        const priorityDiff =
+          priorityOrder[a.priority] - priorityOrder[b.priority];
         if (priorityDiff !== 0) return priorityDiff;
         return new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime();
       }
 
       // Both without due date: sort by priority, then by creation date
-      const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      const priorityDiff =
+        priorityOrder[a.priority] - priorityOrder[b.priority];
       if (priorityDiff !== 0) return priorityDiff;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
@@ -192,7 +191,12 @@ export class TasksService {
     return task;
   }
 
-  async update(id: string, userId: string, userRole: Role, updateTaskDto: UpdateTaskDto) {
+  async update(
+    id: string,
+    userId: string,
+    userRole: Role,
+    updateTaskDto: UpdateTaskDto,
+  ) {
     const task = await this.prisma.task.findUnique({
       where: { id },
     });
@@ -202,12 +206,20 @@ export class TasksService {
     }
 
     // Non-admin users can only update their own tasks
-    if (userRole !== Role.ADMIN && task.creatorId !== userId && task.assigneeId !== userId) {
+    if (
+      userRole !== Role.ADMIN &&
+      task.creatorId !== userId &&
+      task.assigneeId !== userId
+    ) {
       throw new ForbiddenException('You can only update your own tasks');
     }
 
     // Non-admin users cannot reassign tasks to others
-    if (userRole !== Role.ADMIN && updateTaskDto.assigneeId && updateTaskDto.assigneeId !== userId) {
+    if (
+      userRole !== Role.ADMIN &&
+      updateTaskDto.assigneeId &&
+      updateTaskDto.assigneeId !== userId
+    ) {
       throw new ForbiddenException('You cannot assign tasks to other users');
     }
 
@@ -261,15 +273,22 @@ export class TasksService {
 
   async getStats(userId: string, userRole: Role) {
     // Base filter for non-admin users
-    const baseWhere = userRole !== Role.ADMIN
-      ? { OR: [{ creatorId: userId }, { assigneeId: userId }] }
-      : {};
+    const baseWhere =
+      userRole !== Role.ADMIN
+        ? { OR: [{ creatorId: userId }, { assigneeId: userId }] }
+        : {};
 
     const [total, todo, inProgress, done, overdue] = await Promise.all([
       this.prisma.task.count({ where: baseWhere }),
-      this.prisma.task.count({ where: { ...baseWhere, status: TaskStatus.TODO } }),
-      this.prisma.task.count({ where: { ...baseWhere, status: TaskStatus.IN_PROGRESS } }),
-      this.prisma.task.count({ where: { ...baseWhere, status: TaskStatus.DONE } }),
+      this.prisma.task.count({
+        where: { ...baseWhere, status: TaskStatus.TODO },
+      }),
+      this.prisma.task.count({
+        where: { ...baseWhere, status: TaskStatus.IN_PROGRESS },
+      }),
+      this.prisma.task.count({
+        where: { ...baseWhere, status: TaskStatus.DONE },
+      }),
       this.prisma.task.count({
         where: {
           ...baseWhere,

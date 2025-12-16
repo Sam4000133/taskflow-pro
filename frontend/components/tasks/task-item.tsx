@@ -46,27 +46,6 @@ export function TaskItem({ task, onStatusChange, onDelete, onEdit }: TaskItemPro
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'TODO':
-        return <Badge variant="secondary">To Do</Badge>;
-      case 'IN_PROGRESS':
-        return (
-          <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
-            In Progress
-          </Badge>
-        );
-      case 'DONE':
-        return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Done
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'HIGH':
