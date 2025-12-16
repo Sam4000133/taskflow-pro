@@ -98,22 +98,48 @@ export class TasksService {
       },
     });
 
-    // Custom sorting: priority (HIGH > MEDIUM > LOW), then by due date (oldest first)
+    // Custom sorting:
+    // 1. Overdue HIGH (most overdue first)
+    // 2. Overdue MEDIUM (most overdue first)
+    // 3. Overdue LOW (most overdue first)
+    // 4. Non-overdue HIGH (earliest due date first)
+    // 5. Non-overdue MEDIUM (earliest due date first)
+    // 6. Non-overdue LOW (earliest due date first)
+    // 7. Tasks without due date (by priority, then by creation date)
     const priorityOrder = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+    const now = new Date();
 
     return tasks.sort((a, b) => {
-      // First sort by priority
-      const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
-      if (priorityDiff !== 0) return priorityDiff;
+      const aOverdue = a.dueDate && new Date(a.dueDate) < now && a.status !== 'DONE';
+      const bOverdue = b.dueDate && new Date(b.dueDate) < now && b.status !== 'DONE';
+      const aHasDueDate = !!a.dueDate;
+      const bHasDueDate = !!b.dueDate;
 
-      // Then sort by due date (oldest/most overdue first, null dates at the end)
-      if (a.dueDate && b.dueDate) {
+      // Both overdue: sort by priority, then by most overdue
+      if (aOverdue && bOverdue) {
+        const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+        if (priorityDiff !== 0) return priorityDiff;
         return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
       }
-      if (a.dueDate && !b.dueDate) return -1;
-      if (!a.dueDate && b.dueDate) return 1;
 
-      // If same priority and no due dates, sort by creation date (newest first)
+      // Only one is overdue: overdue comes first
+      if (aOverdue && !bOverdue) return -1;
+      if (!aOverdue && bOverdue) return 1;
+
+      // Neither overdue: tasks with due date before tasks without
+      if (aHasDueDate && !bHasDueDate) return -1;
+      if (!aHasDueDate && bHasDueDate) return 1;
+
+      // Both have due date (not overdue): sort by priority, then earliest due date
+      if (aHasDueDate && bHasDueDate) {
+        const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+        if (priorityDiff !== 0) return priorityDiff;
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      }
+
+      // Both without due date: sort by priority, then by creation date
+      const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      if (priorityDiff !== 0) return priorityDiff;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }
