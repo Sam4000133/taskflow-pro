@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dialog';
 import { Calendar, MoreVertical, Trash2, Edit, MessageSquare } from 'lucide-react';
 import { format, isPast, isToday } from 'date-fns';
+import { useAuthStore } from '@/store/auth';
 import type { Task, TaskStatus } from '@/lib/types';
 
 interface TaskItemProps {
@@ -38,6 +39,10 @@ interface TaskItemProps {
 }
 
 export function TaskItem({ task, onStatusChange, onDelete, onEdit }: TaskItemProps) {
+  const currentUser = useAuthStore((state) => state.user);
+  const isAdmin = currentUser?.role === 'ADMIN';
+  const canDelete = isAdmin || task.creatorId === currentUser?.id;
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -131,14 +136,18 @@ export function TaskItem({ task, onStatusChange, onDelete, onEdit }: TaskItemPro
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600"
-                  onClick={() => setShowDeleteDialog(true)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
+                {canDelete && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-red-600 focus:text-red-600"
+                      onClick={() => setShowDeleteDialog(true)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -181,6 +190,11 @@ export function TaskItem({ task, onStatusChange, onDelete, onEdit }: TaskItemPro
             <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
               <span>Assigned to:</span>
               <span className="font-medium">{task.assignee.name}</span>
+              {task.creator && task.creatorId !== task.assigneeId && (
+                <span className="text-xs">
+                  from <span className="font-medium">{task.creator.name}</span>
+                </span>
+              )}
             </div>
           )}
         </CardContent>
