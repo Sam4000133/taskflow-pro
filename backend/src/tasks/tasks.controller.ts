@@ -9,12 +9,19 @@ import {
   Query,
   ParseUUIDPipe,
 } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { FilterTasksDto } from './dto/filter-tasks.dto';
 import { CurrentUser } from '../auth';
 import { NotificationsGateway } from '../notifications';
+
+interface CurrentUserType {
+  id: string;
+  name: string;
+  role: Role;
+}
 
 @Controller('tasks')
 export class TasksController {
@@ -25,7 +32,7 @@ export class TasksController {
 
   @Post()
   async create(
-    @CurrentUser() user: { id: string; name: string },
+    @CurrentUser() user: CurrentUserType,
     @Body() createTaskDto: CreateTaskDto,
   ) {
     const task = await this.tasksService.create(user.id, createTaskDto);
@@ -37,13 +44,16 @@ export class TasksController {
   }
 
   @Get()
-  findAll(@Query() filters: FilterTasksDto) {
-    return this.tasksService.findAll(filters);
+  findAll(
+    @CurrentUser() user: CurrentUserType,
+    @Query() filters: FilterTasksDto,
+  ) {
+    return this.tasksService.findAll(filters, user.id, user.role);
   }
 
   @Get('stats')
-  getStats() {
-    return this.tasksService.getStats();
+  getStats(@CurrentUser() user: CurrentUserType) {
+    return this.tasksService.getStats(user.id, user.role);
   }
 
   @Get(':id')
@@ -54,11 +64,11 @@ export class TasksController {
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: { id: string; name: string },
+    @CurrentUser() user: CurrentUserType,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
     const existingTask = await this.tasksService.findOne(id);
-    const task = await this.tasksService.update(id, user.id, updateTaskDto);
+    const task = await this.tasksService.update(id, user.id, user.role, updateTaskDto);
     this.notificationsGateway.emitTaskUpdated(task, user.name);
 
     // Notify newly assigned user
@@ -73,10 +83,10 @@ export class TasksController {
   @Delete(':id')
   async remove(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: { id: string; name: string },
+    @CurrentUser() user: CurrentUserType,
   ) {
     const task = await this.tasksService.findOne(id);
-    const result = await this.tasksService.remove(id, user.id);
+    const result = await this.tasksService.remove(id, user.id, user.role);
     this.notificationsGateway.emitTaskDeleted(task.title, user.name);
     return result;
   }

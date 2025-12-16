@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth';
 import type { Task, Category, User, CreateTaskDto, UpdateTaskDto } from '@/lib/types';
 
 const taskSchema = z.object({
@@ -61,6 +62,8 @@ export function TaskForm({
   onSubmit,
   isSubmitting,
 }: TaskFormProps) {
+  const currentUser = useAuthStore((state) => state.user);
+  const isAdmin = currentUser?.role === 'ADMIN';
   const isEditing = !!task;
 
   const {
@@ -114,6 +117,11 @@ export function TaskForm({
   }, [task, reset]);
 
   const handleFormSubmit = async (data: TaskFormData) => {
+    // Non-admin users can only assign tasks to themselves
+    const assigneeId = isAdmin
+      ? data.assigneeId || undefined
+      : currentUser?.id;
+
     const submitData: CreateTaskDto | UpdateTaskDto = {
       title: data.title,
       description: data.description || undefined,
@@ -121,7 +129,7 @@ export function TaskForm({
       priority: data.priority,
       dueDate: data.dueDate ? data.dueDate.toISOString() : undefined,
       categoryId: data.categoryId || undefined,
-      assigneeId: data.assigneeId || undefined,
+      assigneeId,
     };
 
     await onSubmit(submitData);
@@ -206,7 +214,7 @@ export function TaskForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className={cn("grid gap-4", isAdmin ? "grid-cols-2" : "grid-cols-1")}>
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select
@@ -235,27 +243,29 @@ export function TaskForm({
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label>Assignee</Label>
-                <Select
-                  value={watchedAssignee || 'none'}
-                  onValueChange={(value) =>
-                    setValue('assigneeId', value === 'none' ? undefined : value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select assignee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Unassigned</SelectItem>
-                    {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {isAdmin && (
+                <div className="space-y-2">
+                  <Label>Assignee</Label>
+                  <Select
+                    value={watchedAssignee || 'none'}
+                    onValueChange={(value) =>
+                      setValue('assigneeId', value === 'none' ? undefined : value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select assignee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Unassigned</SelectItem>
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, X } from 'lucide-react';
+import { useAuthStore } from '@/store/auth';
 import type { Category, User } from '@/lib/types';
 
 interface TaskFiltersProps {
@@ -43,12 +44,15 @@ export function TaskFilters({
   users,
   onClearFilters,
 }: TaskFiltersProps) {
+  const currentUser = useAuthStore((state) => state.user);
+  const isAdmin = currentUser?.role === 'ADMIN';
+
   const hasActiveFilters =
     searchQuery ||
     statusFilter !== 'all' ||
     priorityFilter !== 'all' ||
     categoryFilter !== 'all' ||
-    assigneeFilter !== 'all';
+    (isAdmin && assigneeFilter !== 'all');
 
   return (
     <div className="space-y-4">
@@ -107,19 +111,21 @@ export function TaskFilters({
             </SelectContent>
           </Select>
 
-          <Select value={assigneeFilter} onValueChange={onAssigneeChange}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Assignee" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Assignees</SelectItem>
-              {users.map((user) => (
-                <SelectItem key={user.id} value={user.id}>
-                  {user.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {isAdmin && (
+            <Select value={assigneeFilter} onValueChange={onAssigneeChange}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Assignee" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Assignees</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {hasActiveFilters && (
             <Button variant="ghost" size="icon" onClick={onClearFilters}>
