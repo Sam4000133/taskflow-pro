@@ -187,15 +187,21 @@ export function TaskItem({ task, onStatusChange, onDelete, onEdit }: TaskItemPro
             </Select>
           </div>
           {task.assignee && (
-            <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Assigned to:</span>
-              <span className="font-medium">{task.assignee.name}</span>
-              {task.creator && task.creatorId !== task.assigneeId && (
-                <span className="text-xs">
-                  from <span className="font-medium">{task.creator.name}</span>
-                </span>
-              )}
-            </div>
+            // For non-admin users: only show if task was assigned by someone else
+            // For admin users: always show assignee info
+            (isAdmin || (task.creatorId !== task.assigneeId)) && (
+              <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Assigned to{!isAdmin && task.assigneeId === currentUser?.id ? ' you' : ':'}</span>
+                {(isAdmin || task.assigneeId !== currentUser?.id) && (
+                  <span className="font-medium">{task.assignee.name}</span>
+                )}
+                {task.creator && task.creatorId !== task.assigneeId && (
+                  <span className="text-xs">
+                    from <span className="font-medium">{task.creator.name}</span>
+                  </span>
+                )}
+              </div>
+            )
           )}
         </CardContent>
       </Card>
