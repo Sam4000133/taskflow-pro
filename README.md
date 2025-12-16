@@ -15,6 +15,7 @@ A full-stack task management system with modern architecture, featuring real-tim
 ## Features
 
 - **User Authentication**: JWT-based auth with secure password hashing
+- **Session Timeout**: Auto-logout after 5 minutes of inactivity with warning modal
 - **Role-Based Access Control**: Admin and User roles with different permissions
 - **Task Management**: Full CRUD operations with status tracking (TODO, IN_PROGRESS, DONE)
 - **Kanban Board**: Drag & drop interface for visual task management
