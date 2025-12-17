@@ -34,10 +34,12 @@ async function bootstrap() {
   );
 
   // Swagger API Documentation
+  const isProduction = process.env.NODE_ENV === 'production';
   const config = new DocumentBuilder()
     .setTitle('TaskFlow Pro API')
     .setDescription('Full-stack task management system API documentation')
     .setVersion('1.0.0')
+    .addServer(isProduction ? '/api' : '/', isProduction ? 'Production' : 'Development')
     .addBearerAuth(
       {
         type: 'http',
