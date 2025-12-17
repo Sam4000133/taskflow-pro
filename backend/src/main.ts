@@ -34,10 +34,15 @@ async function bootstrap() {
   );
 
   // Swagger API Documentation
+  // Detect production by checking if not running on localhost
+  const isLocalhost = !process.env.FRONTEND_URL || process.env.FRONTEND_URL.includes('localhost');
+  // Build API base URL for Swagger
+  const apiBaseUrl = process.env.API_BASE_URL || (isLocalhost ? '' : '/api');
   const config = new DocumentBuilder()
     .setTitle('TaskFlow Pro API')
     .setDescription('Full-stack task management system API documentation')
     .setVersion('1.0.0')
+    .addServer(apiBaseUrl || '/', isLocalhost ? 'Development' : 'Production')
     .addBearerAuth(
       {
         type: 'http',
@@ -72,4 +77,4 @@ async function bootstrap() {
   logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   logger.log(`CORS enabled for: ${frontendUrl}`);
 }
-bootstrap();
+void bootstrap();

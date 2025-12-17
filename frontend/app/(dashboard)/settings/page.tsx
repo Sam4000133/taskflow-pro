@@ -13,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { CategoryManager } from '@/components/categories';
 import { AvatarUpload } from '@/components/settings';
@@ -27,15 +26,6 @@ export default function SettingsPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
-
-  const initials = user?.name
-    ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : 'U';
 
   const fetchCategories = useCallback(async () => {
     try {

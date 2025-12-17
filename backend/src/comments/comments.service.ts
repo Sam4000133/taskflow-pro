@@ -10,7 +10,11 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(taskId: string, authorId: string, createCommentDto: CreateCommentDto) {
+  async create(
+    taskId: string,
+    authorId: string,
+    createCommentDto: CreateCommentDto,
+  ) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
     });

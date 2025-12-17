@@ -19,7 +19,11 @@ export class AppController {
   @Public()
   @Get('health')
   @ApiOperation({ summary: 'Health check endpoint' })
-  @ApiResponse({ status: 200, description: 'Returns health status with database connectivity and memory usage' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Returns health status with database connectivity and memory usage',
+  })
   getHealth(): Promise<HealthCheckResult> {
     return this.appService.getHealth();
   }

@@ -9,7 +9,12 @@ import {
   Query,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -44,7 +49,11 @@ export class TasksController {
     const task = await this.tasksService.create(user.id, createTaskDto);
     this.notificationsGateway.emitTaskCreated(task, user.name);
     if (task.assigneeId && task.assigneeId !== user.id) {
-      this.notificationsGateway.emitTaskAssigned(task, task.assigneeId, user.name);
+      this.notificationsGateway.emitTaskAssigned(
+        task,
+        task.assigneeId,
+        user.name,
+      );
     }
     return task;
   }
@@ -89,14 +98,25 @@ export class TasksController {
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
     const existingTask = await this.tasksService.findOne(id);
-    const task = await this.tasksService.update(id, user.id, user.role, updateTaskDto);
+    const task = await this.tasksService.update(
+      id,
+      user.id,
+      user.role,
+      updateTaskDto,
+    );
     this.notificationsGateway.emitTaskUpdated(task, user.name);
 
     // Notify newly assigned user
-    if (updateTaskDto.assigneeId &&
-        updateTaskDto.assigneeId !== existingTask.assigneeId &&
-        updateTaskDto.assigneeId !== user.id) {
-      this.notificationsGateway.emitTaskAssigned(task, updateTaskDto.assigneeId, user.name);
+    if (
+      updateTaskDto.assigneeId &&
+      updateTaskDto.assigneeId !== existingTask.assigneeId &&
+      updateTaskDto.assigneeId !== user.id
+    ) {
+      this.notificationsGateway.emitTaskAssigned(
+        task,
+        updateTaskDto.assigneeId,
+        user.name,
+      );
     }
     return task;
   }

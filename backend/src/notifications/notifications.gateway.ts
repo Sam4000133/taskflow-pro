@@ -14,15 +14,47 @@ import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
+interface JwtPayload {
+  sub: string;
+  email: string;
+}
+
 interface NotificationPayload {
   id: string;
-  type: 'task_created' | 'task_updated' | 'task_deleted' | 'task_assigned' | 'comment_added';
+  type:
+    | 'task_created'
+    | 'task_updated'
+    | 'task_deleted'
+    | 'task_assigned'
+    | 'comment_added';
   title: string;
   message: string;
   taskId?: string;
   userId?: string;
   createdAt: Date;
 }
+
+interface TaskPayload {
+  id: string;
+  title: string;
+  creatorId?: string | null;
+  assigneeId?: string | null;
+}
+
+interface CommentPayload {
+  authorId: string;
+}
+
+interface SocketData {
+  userId?: string;
+}
+
+type TypedSocket = Socket<
+  Record<string, never>,
+  Record<string, never>,
+  Record<string, never>,
+  SocketData
+>;
 
 @WebSocketGateway({
   cors: {
@@ -45,21 +77,25 @@ export class NotificationsGateway
     private readonly configService: ConfigService,
   ) {}
 
-  async handleConnection(client: Socket) {
+  handleConnection(client: TypedSocket): void {
     try {
-      const token = client.handshake.auth.token || client.handshake.headers.authorization?.split(' ')[1];
+      const token =
+        (client.handshake.auth.token as string) ||
+        client.handshake.headers.authorization?.split(' ')[1];
 
       if (!token) {
-        this.logger.warn(`Client ${client.id} attempted connection without token`);
+        this.logger.warn(
+          `Client ${client.id} attempted connection without token`,
+        );
         client.disconnect();
         return;
       }
 
-      const payload = this.jwtService.verify(token, {
+      const payload = this.jwtService.verify<JwtPayload>(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
 
-      const userId = payload.sub;
+      const userId: string = payload.sub;
       client.data.userId = userId;
 
       // Track user's socket connections
@@ -69,16 +105,20 @@ export class NotificationsGateway
       this.userSockets.get(userId)!.add(client.id);
 
       // Join user-specific room
-      client.join(`user:${userId}`);
+      void client.join(`user:${userId}`);
 
       this.logger.log(`Client connected: ${client.id} (User: ${userId})`);
     } catch (error) {
-      this.logger.error(`Connection error for client ${client.id}: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(
+        `Connection error for client ${client.id}: ${errorMessage}`,
+      );
       client.disconnect();
     }
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: TypedSocket): void {
     const userId = client.data.userId;
     if (userId) {
       const userSocketSet = this.userSockets.get(userId);
@@ -96,8 +136,8 @@ export class NotificationsGateway
   handleSubscribe(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { room: string },
-  ) {
-    client.join(data.room);
+  ): { success: boolean } {
+    void client.join(data.room);
     this.logger.log(`Client ${client.id} subscribed to ${data.room}`);
     return { success: true };
   }
@@ -106,8 +146,8 @@ export class NotificationsGateway
   handleUnsubscribe(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { room: string },
-  ) {
-    client.leave(data.room);
+  ): { success: boolean } {
+    void client.leave(data.room);
     this.logger.log(`Client ${client.id} unsubscribed from ${data.room}`);
     return { success: true };
   }
@@ -115,7 +155,9 @@ export class NotificationsGateway
   // Emit notification to specific user
   sendToUser(userId: string, notification: NotificationPayload) {
     this.server.to(`user:${userId}`).emit('notification', notification);
-    this.logger.log(`Notification sent to user ${userId}: ${notification.type}`);
+    this.logger.log(
+      `Notification sent to user ${userId}: ${notification.type}`,
+    );
   }
 
   // Emit notification to all connected users
@@ -125,7 +167,7 @@ export class NotificationsGateway
   }
 
   // Emit task update to all users
-  emitTaskCreated(task: any, creatorName: string) {
+  emitTaskCreated(task: TaskPayload, creatorName: string): void {
     const notification: NotificationPayload = {
       id: `notif_${Date.now()}`,
       type: 'task_created',
@@ -137,7 +179,7 @@ export class NotificationsGateway
     this.sendToAll(notification);
   }
 
-  emitTaskUpdated(task: any, updaterName: string) {
+  emitTaskUpdated(task: TaskPayload, updaterName: string): void {
     const notification: NotificationPayload = {
       id: `notif_${Date.now()}`,
       type: 'task_updated',
@@ -149,7 +191,7 @@ export class NotificationsGateway
     this.sendToAll(notification);
   }
 
-  emitTaskDeleted(taskTitle: string, deleterName: string) {
+  emitTaskDeleted(taskTitle: string, deleterName: string): void {
     const notification: NotificationPayload = {
       id: `notif_${Date.now()}`,
       type: 'task_deleted',
@@ -160,7 +202,11 @@ export class NotificationsGateway
     this.sendToAll(notification);
   }
 
-  emitTaskAssigned(task: any, assigneeId: string, assignerName: string) {
+  emitTaskAssigned(
+    task: TaskPayload,
+    assigneeId: string,
+    assignerName: string,
+  ): void {
     const notification: NotificationPayload = {
       id: `notif_${Date.now()}`,
       type: 'task_assigned',
@@ -173,7 +219,11 @@ export class NotificationsGateway
     this.sendToUser(assigneeId, notification);
   }
 
-  emitCommentAdded(task: any, comment: any, commenterName: string) {
+  emitCommentAdded(
+    task: TaskPayload,
+    comment: CommentPayload,
+    commenterName: string,
+  ): void {
     const notification: NotificationPayload = {
       id: `notif_${Date.now()}`,
       type: 'comment_added',
@@ -187,7 +237,11 @@ export class NotificationsGateway
     if (task.creatorId && task.creatorId !== comment.authorId) {
       this.sendToUser(task.creatorId, notification);
     }
-    if (task.assigneeId && task.assigneeId !== comment.authorId && task.assigneeId !== task.creatorId) {
+    if (
+      task.assigneeId &&
+      task.assigneeId !== comment.authorId &&
+      task.assigneeId !== task.creatorId
+    ) {
       this.sendToUser(task.assigneeId, notification);
     }
   }

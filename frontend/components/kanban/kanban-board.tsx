@@ -12,7 +12,6 @@ import {
   useSensors,
   closestCorners,
 } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
 import { KanbanColumn } from './kanban-column';
 import { KanbanCard } from './kanban-card';
 import type { Task, TaskStatus } from '@/lib/types';
@@ -104,7 +103,7 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskClick }: KanbanBoardProps
     if (originalTask && originalTask.status !== newStatus) {
       try {
         await onTaskMove(activeId, newStatus);
-      } catch (error) {
+      } catch {
         // Revert on error
         setLocalTasks(tasks);
       }

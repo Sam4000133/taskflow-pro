@@ -47,7 +47,7 @@ export function NotificationDropdown() {
       return;
     }
 
-    const socket = connectSocket(token);
+    connectSocket(token);
 
     const unsubscribe = subscribeToNotifications((notification) => {
       addNotification(notification);

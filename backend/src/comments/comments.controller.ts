@@ -7,7 +7,12 @@ import {
   Delete,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CurrentUser } from '../auth';
@@ -32,7 +37,11 @@ export class CommentsController {
     @CurrentUser() user: { id: string; name: string },
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    const { comment, task } = await this.commentsService.create(taskId, user.id, createCommentDto);
+    const { comment, task } = await this.commentsService.create(
+      taskId,
+      user.id,
+      createCommentDto,
+    );
     this.notificationsGateway.emitCommentAdded(task, comment, user.name);
     return comment;
   }
