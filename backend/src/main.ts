@@ -34,12 +34,15 @@ async function bootstrap() {
   );
 
   // Swagger API Documentation
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Detect production by checking if not running on localhost
+  const isLocalhost = !process.env.FRONTEND_URL || process.env.FRONTEND_URL.includes('localhost');
   const config = new DocumentBuilder()
     .setTitle('TaskFlow Pro API')
     .setDescription('Full-stack task management system API documentation')
     .setVersion('1.0.0')
-    .addServer(isProduction ? '/api' : '/', isProduction ? 'Production' : 'Development')
+    // Add servers in order of priority - production first if not localhost
+    .addServer(isLocalhost ? '/' : '/api', isLocalhost ? 'Development' : 'Production')
+    .addServer(isLocalhost ? '/api' : '/', isLocalhost ? 'Production' : 'Development')
     .addBearerAuth(
       {
         type: 'http',
